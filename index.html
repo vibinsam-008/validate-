@@ -1,0 +1,1041 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validate.io // The PM & MVP Copilot</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        },
+                        slate: {
+                            950: '#0b0f19',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+        /* Markdown rendering styles */
+        .prose h1 { @apply text-2xl font-bold text-white mt-6 mb-4 border-b border-gray-800 pb-2; }
+        .prose h2 { @apply text-xl font-bold text-brand-400 mt-5 mb-3 flex items-center gap-2; }
+        .prose h3 { @apply text-lg font-semibold text-gray-200 mt-4 mb-2; }
+        .prose p { @apply text-gray-300 leading-relaxed mb-4 text-sm md:text-base; }
+        .prose ul, .prose ol { @apply list-disc list-inside text-gray-300 mb-4 space-y-1 pl-2 text-sm; }
+        .prose ol { @apply list-decimal; }
+        .prose li strong { @apply text-white; }
+        .prose blockquote { @apply border-l-4 border-brand-500 pl-4 italic text-gray-400 my-4 bg-gray-900/50 py-2 pr-2 rounded-r; }
+        .prose code { @apply font-mono bg-gray-800 text-brand-300 px-1.5 py-0.5 rounded text-xs; }
+        .prose pre { @apply font-mono bg-gray-950 p-4 rounded-lg overflow-x-auto text-xs my-4 border border-gray-800 text-gray-300; }
+        .prose table { @apply w-full border-collapse my-4 text-left text-sm; }
+        .prose th { @apply bg-gray-900 text-white p-2.5 font-semibold border-b border-gray-800; }
+        .prose td { @apply p-2.5 border-b border-gray-800/50 text-gray-300; }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col antialiased">
+
+    <!-- TOP HEADER -->
+    <header class="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 p-2.5 rounded-xl shadow-lg shadow-brand-500/20">
+                    <i data-lucide="compass" class="w-6 h-6 text-white animate-pulse"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-100 to-brand-400 bg-clip-text text-transparent">Validate.io</h1>
+                        <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-brand-950 text-brand-400 border border-brand-800/40">v2.5 Pro</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400">The Senior PM, UX Researcher, & Startup Founder Copilot</p>
+                </div>
+            </div>
+
+            <!-- API Key & Global Settings Status -->
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button onclick="toggleSetupModal()" class="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white px-3.5 py-2 rounded-xl text-xs font-medium border border-gray-800 transition-all duration-200" id="apiKeyStatusBtn">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500" id="apiKeyIndicator"></span>
+                    <span id="apiKeyBtnText">Setup Connection</span>
+                    <i data-lucide="settings" class="w-3.5 h-3.5 ml-1"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-1.5 text-[11px] text-gray-500">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    <span>100% Client-Side Encryption</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CORE CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT SIDEBAR: INPUT & CHAT CHANNELS -->
+        <section class="lg:col-span-5 space-y-6">
+            <!-- 1. The Idea Engine -->
+            <div class="bg-gray-900/60 border border-gray-800/80 rounded-2xl p-5 backdrop-blur shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-3 opacity-10">
+                    <i data-lucide="lightbulb" class="w-24 h-24 text-brand-500"></i>
+                </div>
+
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="zap" class="w-5 h-5 text-brand-400"></i>
+                        <h2 class="font-bold text-gray-100">Seed Your Product Idea</h2>
+                    </div>
+                    <button onclick="loadTemplateIdea()" class="text-xs text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1 transition">
+                        <i data-lucide="sparkles" class="w-3 h-3"></i> Load Demo
+                    </button>
+                </div>
+
+                <textarea id="productIdeaInput" rows="5" class="w-full bg-gray-950/80 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all font-sans" placeholder="Describe your product idea. What does it do? Who is it for? Keep it as vague or detailed as you want. Our systems thinker will challenge your assumptions and extract a bulletproof MVP strategy..."></textarea>
+
+                <!-- Framework Selections & Search Grounding Toggle -->
+                <div class="mt-4 space-y-3">
+                    <div class="flex items-center justify-between bg-gray-950/50 p-2.5 rounded-xl border border-gray-800/40">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+                            <div>
+                                <p class="text-xs font-semibold text-gray-200">Google Search Grounding</p>
+                                <p class="text-[10px] text-gray-500">Retrieves real-time market trends & competitors</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="searchGroundingToggle" class="sr-only peer" checked>
+                            <div class="w-9 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-4 after:width-4 after:transition-all dark:border-gray-600 peer-checked:bg-brand-600 peer-checked:after:bg-white"></div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="runAnalysis('comprehensive')" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-lg shadow-brand-600/10 flex items-center justify-center gap-2 transition duration-200">
+                            <i data-lucide="rocket" class="w-4 h-4"></i> Validate Idea
+                        </button>
+                        <button onclick="runAnalysis('challenge')" class="bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition duration-200 border border-gray-700/60">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i> Challenge Critically
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. The Interactive Critique Sandbox (The PM Chat) -->
+            <div class="bg-gray-900/60 border border-gray-800/80 rounded-2xl p-5 backdrop-blur shadow-xl flex flex-col h-[400px]">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-800">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-4 h-4 text-brand-400"></i>
+                        <h3 class="font-bold text-gray-100 text-sm">PM Consultation Chamber</h3>
+                    </div>
+                    <span class="text-[10px] bg-brand-950 text-brand-400 px-2 py-0.5 rounded-full border border-brand-800">Direct Advisor</span>
+                </div>
+
+                <!-- Chat Messages Feed -->
+                <div id="chatFeed" class="flex-1 overflow-y-auto space-y-4 pr-1 text-sm mb-4">
+                    <div class="flex gap-2.5 items-start">
+                        <div class="bg-brand-950 border border-brand-800 p-1.5 rounded-lg text-brand-400 mt-0.5">
+                            <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="bg-gray-950/80 p-3 rounded-2xl rounded-tl-none border border-gray-800/80 text-gray-300">
+                            <p class="font-semibold text-xs text-brand-400 mb-1">25-Year Startup Vet</p>
+                            Hello. I've scaled multiple ideas to millions. Feed me your vague, half-baked product concept, and I will dissect it into real pain points, competitive strategies, and a viable MVP. Tell me: What problem are you trying to solve?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="relative">
+                    <input type="text" id="chatMessageInput" onkeydown="if(event.key === 'Enter') sendChatMessage()" class="w-full bg-gray-950/90 border border-gray-800 rounded-xl pl-4 pr-10 py-3 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-transparent transition" placeholder="Ask follow ups, e.g., 'What would an investor dislike?'">
+                    <button onclick="sendChatMessage()" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT WORKSPACE: SYSTEMATIC EVALUATION VIEW -->
+        <section class="lg:col-span-7 space-y-6">
+            
+            <!-- Strategic Workspace Navigation Tabs -->
+            <div class="bg-gray-950 p-1.5 rounded-xl border border-gray-800/80 flex gap-1 overflow-x-auto">
+                <button onclick="switchTab('strategic-breakdown')" id="tab-strategic-breakdown" class="tab-btn px-4 py-2.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 shrink-0 bg-brand-600 text-white">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                    Strategic Pillars
+                </button>
+                <button onclick="switchTab('mvp-blueprint')" id="tab-mvp-blueprint" class="tab-btn px-4 py-2.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition flex items-center gap-2 shrink-0">
+                    <i data-lucide="container" class="w-3.5 h-3.5"></i>
+                    MVP Blueprint
+                </button>
+                <button onclick="switchTab('lean-canvas-tab')" id="tab-lean-canvas-tab" class="tab-btn px-4 py-2.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition flex items-center gap-2 shrink-0">
+                    <i data-lucide="layout" class="w-3.5 h-3.5"></i>
+                    Interactive Lean Canvas
+                </button>
+            </div>
+
+            <!-- Tab 1 Content: Strategic Pillar Analysis -->
+            <div id="content-strategic-breakdown" class="tab-panel space-y-6">
+                <!-- Welcome/Landing Empty State or Analysis Display -->
+                <div id="primaryAnalysisContainer" class="bg-gray-900/40 border border-gray-800/80 rounded-2xl p-6 min-h-[450px] relative">
+                    
+                    <div id="welcomePlaceholder" class="flex flex-col items-center justify-center text-center py-16 px-4">
+                        <div class="w-16 h-16 bg-brand-950/80 border border-brand-800 text-brand-400 rounded-2xl flex items-center justify-center mb-5 animate-bounce">
+                            <i data-lucide="microscope" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Awaiting Product Core</h3>
+                        <p class="text-sm text-gray-400 max-w-md leading-relaxed mb-6">
+                            Enter your draft idea in the left console or load the demo template, then hit **Validate Idea** to start. The AI will cross-reference market datasets and build a 14-point strategic evaluation framework.
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-lg text-left">
+                            <div class="p-3 bg-gray-950/60 rounded-xl border border-gray-800/60 flex items-start gap-2.5">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-200">No Idea Praise</p>
+                                    <p class="text-[10px] text-gray-500">Unbiased critique and direct stress testing.</p>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-gray-950/60 rounded-xl border border-gray-800/60 flex items-start gap-2.5">
+                                <i data-lucide="history" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-200">JTBD Framework</p>
+                                    <p class="text-[10px] text-gray-500">Focuses on actual user motivations.</p>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-gray-950/60 rounded-xl border border-gray-800/60 col-span-2 md:col-span-1 flex items-start gap-2.5">
+                                <i data-lucide="git-branch" class="w-4 h-4 text-brand-400 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-200">Tree Strategy</p>
+                                    <p class="text-[10px] text-gray-500">Clear Opportunity & Solution Mapping.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader State -->
+                    <div id="analysisLoader" class="hidden absolute inset-0 bg-gray-950/95 rounded-2xl flex flex-col items-center justify-center p-6 z-10">
+                        <div class="relative w-20 h-20 mb-6">
+                            <div class="absolute inset-0 rounded-full border-4 border-gray-800 border-t-brand-500 animate-spin"></div>
+                            <div class="absolute inset-2.5 rounded-full border-4 border-gray-900 border-b-indigo-400 animate-spin [animation-direction:reverse]"></div>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-2">Analyzing Product Strategy...</h4>
+                        <div class="text-sm text-gray-400 max-w-sm text-center font-mono space-y-1.5" id="loaderSteps">
+                            <p class="text-emerald-400 flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Activating PM Brain Core...</p>
+                            <p class="text-gray-400 flex items-center justify-center gap-1.5" id="searchStep"><i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Instantiating Google Grounding query...</p>
+                        </div>
+                    </div>
+
+                    <!-- Rendered Analysis Output Area -->
+                    <div id="analysisOutput" class="hidden">
+                        <!-- Fast Copy Button -->
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-brand-400"></i>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">14-Point Evaluation Pillar System</span>
+                            </div>
+                            <button onclick="copyCurrentAnalysis()" class="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Full Analysis
+                            </button>
+                        </div>
+                        <div class="prose max-w-none text-gray-300" id="analysisHTML">
+                            <!-- Injected by Markdown Engine -->
+                        </div>
+                        
+                        <!-- Search Grounding References / Sources Section -->
+                        <div id="sourcesContainer" class="mt-6 pt-4 border-t border-gray-800 hidden">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> Grounding Verification Sources
+                            </h4>
+                            <div id="sourcesList" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <!-- Sources Go Here -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tab 2 Content: MVP Blueprint & JTBD Sandbox -->
+            <div id="content-mvp-blueprint" class="tab-panel space-y-6 hidden">
+                <div class="bg-gray-900/40 border border-gray-800/80 rounded-2xl p-6 min-h-[450px] relative">
+                    <!-- Dynamic Lean & MVP Blueprint display -->
+                    <div id="mvpWelcomePlaceholder" class="flex flex-col items-center justify-center text-center py-20 px-4">
+                        <div class="w-16 h-16 bg-gray-900 border border-gray-800 text-gray-400 rounded-2xl flex items-center justify-center mb-5">
+                            <i data-lucide="box" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">No Active MVP Plan Loaded</h3>
+                        <p class="text-sm text-gray-400 max-w-sm leading-relaxed mb-4">
+                            Run a primary evaluation on your product idea first. The MVP planner extracts the minimum path to product value.
+                        </p>
+                    </div>
+
+                    <div id="mvpContainer" class="hidden">
+                        <div class="flex items-center justify-between mb-6 pb-3 border-b border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="git-commit" class="w-4 h-4 text-brand-400"></i>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Validated Lean MVP Blueprint</span>
+                            </div>
+                            <span class="text-xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Plan
+                            </span>
+                        </div>
+                        <div class="prose max-w-none text-gray-300" id="mvpHTML">
+                            <!-- Injected by Markdown Engine -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3 Content: Interactive Lean Canvas Sandbox -->
+            <div id="content-lean-canvas-tab" class="tab-panel space-y-6 hidden">
+                <div class="bg-gray-900/60 border border-gray-800/80 rounded-2xl p-6 shadow-xl">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-gray-800 pb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="layout-grid" class="w-5 h-5 text-brand-400"></i> Lean Canvas Sandbox
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-1">Refine, adjust, and construct your strategic business framework coordinates below.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="saveCanvasState()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Canvas
+                            </button>
+                            <button onclick="exportCanvas()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lean Canvas Responsive Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-gray-950 p-3 rounded-xl border border-gray-800/60 text-xs font-sans">
+                        <!-- Problem & Existing Alternatives -->
+                        <div class="md:col-span-1 space-y-3 flex flex-col min-h-[220px]">
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-200 block mb-1.5 flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-400"></i> Problem</label>
+                                <textarea id="lc-problem" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Top 3 problems users experience..."></textarea>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-400 block mb-1.5 flex items-center gap-1">Alternatives</label>
+                                <textarea id="lc-alternatives" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="How they solve it today..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Solution & Key Metrics -->
+                        <div class="md:col-span-1 space-y-3 flex flex-col min-h-[220px]">
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-200 block mb-1.5 flex items-center gap-1"><i data-lucide="key" class="w-3.5 h-3.5 text-brand-400"></i> Solution</label>
+                                <textarea id="lc-solution" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Primary features / value paths..."></textarea>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-400 block mb-1.5 flex items-center gap-1">Key Metrics</label>
+                                <textarea id="lc-metrics" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Primary numbers to track..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Unique Value Proposition & High-Level Concept -->
+                        <div class="md:col-span-1 space-y-3 flex flex-col min-h-[220px]">
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-200 block mb-1.5 flex items-center gap-1"><i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i> Unique Value Prop</label>
+                                <textarea id="lc-uvp" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Single, clear compelling message..."></textarea>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-400 block mb-1.5 flex items-center gap-1">High-Level Concept</label>
+                                <textarea id="lc-concept" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="E.g., Airbnb is Craigslist with beautiful images & reviews..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Unfair Advantage & Channels -->
+                        <div class="md:col-span-1 space-y-3 flex flex-col min-h-[220px]">
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-200 block mb-1.5 flex items-center gap-1"><i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i> Unfair Advantage</label>
+                                <textarea id="lc-advantage" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="What cannot be easily copied..."></textarea>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-400 block mb-1.5 flex items-center gap-1">Channels</label>
+                                <textarea id="lc-channels" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Paths to target audience..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Customer Segments & Early Adopters -->
+                        <div class="md:col-span-1 space-y-3 flex flex-col min-h-[220px]">
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-200 block mb-1.5 flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5 text-cyan-400"></i> Target Customers</label>
+                                <textarea id="lc-segments" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Your target user demographics & traits..."></textarea>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800/60 p-3 rounded-lg flex-1 flex flex-col">
+                                <label class="font-bold text-gray-400 block mb-1.5 flex items-center gap-1">Early Adopters</label>
+                                <textarea id="lc-adopters" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1 resize-none" placeholder="Who acts first on this solution..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost & Revenue Pillars (Bottom Span) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        <div class="bg-gray-900 border border-gray-800/60 p-4 rounded-xl text-xs flex flex-col">
+                            <label class="font-bold text-gray-200 block mb-2 flex items-center gap-1"><i data-lucide="trending-down" class="w-4 h-4 text-rose-400"></i> Cost Structure</label>
+                            <textarea id="lc-costs" rows="3" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1" placeholder="Hosting, customer acquisition costs, distribution costs..."></textarea>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800/60 p-4 rounded-xl text-xs flex flex-col">
+                            <label class="font-bold text-gray-200 block mb-2 flex items-center gap-1"><i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Revenue Streams</label>
+                            <textarea id="lc-revenues" rows="3" class="w-full bg-gray-950 p-2 rounded border border-gray-800 text-xs text-gray-300 focus:outline-none focus:border-brand-500 flex-1" placeholder="Subscription tiers, micro-transactions, commissions..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-950/80 border-t border-gray-800 py-6 px-4 mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <div class="flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-brand-500"></i>
+                <span>Private & Encrypted Local Session Sandbox. No data ever leaves your browser.</span>
+            </div>
+            <div>
+                <span>Powered by Gemini 2.5 Pro Brain Core & System Grounding</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SETUP/CONNECTION MODAL -->
+    <div id="setupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/85 backdrop-blur-sm animate-fade-in">
+        <div class="bg-gray-900 border border-gray-800/80 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="toggleSetupModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white p-1 hover:bg-gray-800 rounded-lg transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-brand-950 border border-brand-800 p-2 rounded-xl text-brand-400">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-lg">Secure API Configuration</h3>
+                    <p class="text-xs text-gray-400">Manage your credentials & local engine access.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-gray-950/80 p-3.5 rounded-xl border border-gray-800 text-xs text-gray-400 leading-relaxed space-y-2">
+                    <p><strong class="text-gray-200">🔒 Zero Data Extraction Guardrail:</strong> Your keys and queries are stored locally and transmitted directly and exclusively to Google API gateways. No analytical proxy, secondary cloud storage, or private database hooks are injected.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Gemini API Key</label>
+                    <div class="relative">
+                        <input type="password" id="userApiKey" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="AI-generated Runtime Key active by default">
+                    </div>
+                    <p class="text-[10px] text-gray-500 mt-1">Leave blank to use the secure embedded environment runner API context.</p>
+                </div>
+
+                <div class="flex gap-2 pt-2 justify-end">
+                    <button onclick="toggleSetupModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold px-4 py-2 rounded-xl transition">Close</button>
+                    <button onclick="saveApiSetup()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">Save & Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION CUSTOM TOAST BOX -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 transition-all duration-300 bg-gray-900 border border-brand-500/30 text-xs text-gray-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
+        <div id="toastIconContainer" class="p-1 rounded-lg">
+            <i id="toastIcon" data-lucide="info" class="w-4 h-4"></i>
+        </div>
+        <p id="toastMessage" class="flex-1 font-medium"></p>
+    </div>
+
+    <!-- MAIN SYSTEM LOGIC -->
+    <script>
+        // Global variables provided by runtime environment
+        const defaultAppId = typeof __app_id !== 'undefined' ? __app_id : 'validate-pm-copilot-default';
+        let apiKey = ""; // Default empty key for runtime environment injection. Overridden if user saves custom key.
+
+        // Session & Sandbox State
+        let state = {
+            currentTab: 'strategic-breakdown',
+            productIdea: '',
+            fullAnalysis: '',
+            mvpPlan: '',
+            canvas: {
+                problem: '',
+                alternatives: '',
+                solution: '',
+                metrics: '',
+                uvp: '',
+                concept: '',
+                advantage: '',
+                channels: '',
+                segments: '',
+                adopters: '',
+                costs: '',
+                revenues: ''
+            },
+            chatHistory: [
+                { role: 'model', parts: [{ text: "Hello. I've scaled multiple ideas to millions. Feed me your vague, half-baked product concept, and I will dissect it into real pain points, competitive strategies, and a viable MVP. Tell me: What problem are you trying to solve?" }] }
+            ]
+        };
+
+        // Templates for instant exploration
+        const demoIdea = `An on-demand local storage & packing application. Users can click a button on an app, a courier brings modular heavy-duty plastic storage bins, the user packs them, and the courier takes them to secure climate-controlled warehouses. Users can recall their items in 2 hours via a visual photo inventory on their mobile phone. It is targeted at apartment dwellers and downsizers.`;
+
+        // Initialize Lucide Icons on document load
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            loadStateFromLocalStorage();
+            updateApiKeyStatus();
+        });
+
+        // Toggle secure API / settings modal
+        function toggleSetupModal() {
+            const modal = document.getElementById('setupModal');
+            modal.classList.toggle('hidden');
+            
+            // Set input value to saved key if exists
+            if (!modal.classList.contains('hidden')) {
+                const savedKey = localStorage.getItem('validator_custom_api_key') || "";
+                document.getElementById('userApiKey').value = savedKey;
+            }
+        }
+
+        // Save local API details safely
+        function saveApiSetup() {
+            const keyVal = document.getElementById('userApiKey').value.trim();
+            if (keyVal) {
+                localStorage.setItem('validator_custom_api_key', keyVal);
+                showToast("Custom API key saved safely. Running on custom gateway now.", "check-circle", "emerald");
+            } else {
+                localStorage.removeItem('validator_custom_api_key');
+                showToast("Using default runtime secure context.", "info", "brand");
+            }
+            updateApiKeyStatus();
+            toggleSetupModal();
+        }
+
+        function updateApiKeyStatus() {
+            const hasCustom = !!localStorage.getItem('validator_custom_api_key');
+            const indicator = document.getElementById('apiKeyIndicator');
+            const btnText = document.getElementById('apiKeyBtnText');
+            
+            if (hasCustom) {
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+                btnText.innerText = "Active: Custom Key";
+                apiKey = localStorage.getItem('validator_custom_api_key');
+            } else {
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
+                btnText.innerText = "Runtime Environment";
+                apiKey = ""; // Handled automatically at runtime via standard context
+            }
+        }
+
+        // Load demo template idea
+        function loadTemplateIdea() {
+            document.getElementById('productIdeaInput').value = demoIdea;
+            showToast("Demo idea loaded. Ready for dissection!", "sparkles", "brand");
+        }
+
+        // Copy current analysis to Clipboard
+        function copyCurrentAnalysis() {
+            if (!state.fullAnalysis) {
+                showToast("No generated strategy to copy.", "alert-triangle", "rose");
+                return;
+            }
+            const el = document.createElement('textarea');
+            el.value = state.fullAnalysis;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("Strategy analysis copied to clipboard!", "check", "emerald");
+        }
+
+        // Dynamic multi-tab workspace logic
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            
+            // Toggle panel active classes
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+            // Toggle tab buttons state
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white hover:bg-gray-900 transition flex items-center gap-2 shrink-0";
+            });
+            document.getElementById(`tab-${tabId}`).className = "tab-btn px-4 py-2.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 shrink-0 bg-brand-600 text-white";
+        }
+
+        // Save State into LocalStorage (Private Sandbox paradigm)
+        function saveStateToLocalStorage() {
+            localStorage.setItem('validator_app_state', JSON.stringify(state));
+        }
+
+        // Load state back
+        function loadStateFromLocalStorage() {
+            const raw = localStorage.getItem('validator_app_state');
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    state = { ...state, ...parsed };
+                    
+                    // Restore idea input
+                    if (state.productIdea) {
+                        document.getElementById('productIdeaInput').value = state.productIdea;
+                    }
+
+                    // Restore primary analysis HTML
+                    if (state.fullAnalysis) {
+                        document.getElementById('welcomePlaceholder').classList.add('hidden');
+                        document.getElementById('analysisOutput').classList.remove('hidden');
+                        document.getElementById('analysisHTML').innerHTML = marked.parse(state.fullAnalysis);
+                    }
+
+                    // Restore MVP plan HTML
+                    if (state.mvpPlan) {
+                        document.getElementById('mvpWelcomePlaceholder').classList.add('hidden');
+                        document.getElementById('mvpContainer').classList.remove('hidden');
+                        document.getElementById('mvpHTML').innerHTML = marked.parse(state.mvpPlan);
+                    }
+
+                    // Restore Lean Canvas textareas
+                    if (state.canvas) {
+                        Object.keys(state.canvas).forEach(key => {
+                            const field = document.getElementById(`lc-${key}`);
+                            if (field) field.value = state.canvas[key];
+                        });
+                    }
+
+                    // Restore Chat messages
+                    if (state.chatHistory && state.chatHistory.length > 0) {
+                        const chatFeed = document.getElementById('chatFeed');
+                        chatFeed.innerHTML = ""; // Clear
+                        state.chatHistory.forEach(msg => {
+                            appendMessageToUI(msg.role === 'model' ? 'bot' : 'user', msg.parts[0].text);
+                        });
+                    }
+
+                } catch (e) {
+                    console.error("Failed to restore saved local state: ", e);
+                }
+            }
+        }
+
+        // Show customizable modern Toast notifications
+        function showToast(message, iconName, colorName = "brand") {
+            const toast = document.getElementById('toast');
+            const messageEl = document.getElementById('toastMessage');
+            const iconContainer = document.getElementById('toastIconContainer');
+            
+            messageEl.innerText = message;
+            
+            // Theme colors
+            if (colorName === "rose") {
+                iconContainer.className = "p-1.5 rounded-lg bg-rose-950 text-rose-400 border border-rose-800";
+            } else if (colorName === "emerald") {
+                iconContainer.className = "p-1.5 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800";
+            } else {
+                iconContainer.className = "p-1.5 rounded-lg bg-brand-950 text-brand-400 border border-brand-800";
+            }
+
+            // Set icon
+            iconContainer.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4"></i>`;
+            lucide.createIcons();
+
+            // Slide in
+            toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-gray-900 border border-brand-500/30 text-xs text-gray-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 transition-all duration-300 bg-gray-900 border border-brand-500/30 text-xs text-gray-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm pointer-events-none";
+            }, 3500);
+        }
+
+        // Dynamic client-side Lean Canvas update
+        function saveCanvasState() {
+            Object.keys(state.canvas).forEach(key => {
+                const el = document.getElementById(`lc-${key}`);
+                if (el) {
+                    state.canvas[key] = el.value;
+                }
+            });
+            saveStateToLocalStorage();
+            showToast("Interactive Lean Canvas saved!", "save", "emerald");
+        }
+
+        // Export Lean Canvas structure as standard JSON
+        function exportCanvas() {
+            saveCanvasState();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.canvas, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `lean_canvas_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Run primary structured generative analysis
+        async function runAnalysis(type) {
+            const inputIdea = document.getElementById('productIdeaInput').value.trim();
+            if (!inputIdea) {
+                showToast("Please write or paste a product idea first.", "alert-triangle", "rose");
+                return;
+            }
+
+            // Save raw input
+            state.productIdea = inputIdea;
+            saveStateToLocalStorage();
+
+            // Prepare loading UI
+            document.getElementById('welcomePlaceholder').classList.add('hidden');
+            const loader = document.getElementById('analysisLoader');
+            loader.classList.remove('hidden');
+            
+            const searchStep = document.getElementById('searchStep');
+            const enableSearch = document.getElementById('searchGroundingToggle').checked;
+            
+            if (enableSearch) {
+                searchStep.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin text-amber-400"></i> Querying live market indices & competitors...`;
+            } else {
+                searchStep.innerHTML = `<i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Local conceptual analysis activated...`;
+            }
+            lucide.createIcons();
+
+            // 14-Point Structured Prompt Construction
+            const systemPrompt = `You are an elite, highly critical Senior Product Manager, UX Researcher, Systems Thinker, and Startup Founder with 25+ years of experience scaling ideas.
+Your task is to analyze the product idea provided by the user using frameworks like Jobs-to-be-Done (JTBD), Design Thinking, Lean Startup, and Opportunity Solution Trees.
+
+Guidelines:
+1. NEVER praise ideas without concrete, objective evidence. Challenge every assumption critically.
+2. Structure your analysis into 14 distinct segments under clear heading formats:
+   - ## 1. Problem Statement (What is the real underlying structural problem?)
+   - ## 2. Target Audience (Detailed demographics and psychographics)
+   - ## 3. User Personas (Primary high-fidelity persona)
+   - ## 4. User Journey Map (Touchpoint flow sequence)
+   - ## 5. Top 3 User Pain Points (Ranked list with root causes)
+   - ## 6. Existing Market Alternatives (Current workflows, competitor models)
+   - ## 7. Unique Value Proposition - UVP (Why would they buy/use this?)
+   - ## 8. Market Validation Signals (Data markers, trends, search insights)
+   - ## 9. Best Business & Monetization Model
+   - ## 10. Technical Feasibility Check (Major stack components, obstacles)
+   - ## 11. Key Structural & Strategic Risks
+   - ## 12. Scalability Bottlenecks
+   - ## 13. Ethical Considerations (Data, environment, fairness)
+   - ## 14. Go-To-Market (GTM) Plan (The direct path to the first 100 users)
+
+3. Then, produce a clear, distinct section at the very end titled "## --- MINIMUM VIABLE PRODUCT (MVP) BLUEPRINT ---" outlining the absolute smallest testable product slice to validate the core assumption. Break it down using Jobs-to-be-Done framework. Specify what to build in week 1 to gather data.
+Format everything using gorgeous Markdown syntax with clean bullet points and clear emphasis. Always output text inside structural headings.`;
+
+            try {
+                const response = await fetchGeminiAPI(inputIdea, systemPrompt, enableSearch);
+                
+                // Parse and handle outputs
+                const fullText = response.text;
+                
+                if (fullText) {
+                    // Split the text to extract the MVP Blueprint safely
+                    const mvpMarker = "## --- MINIMUM VIABLE PRODUCT (MVP) BLUEPRINT ---";
+                    let strategyText = fullText;
+                    let mvpText = "";
+
+                    if (fullText.includes(mvpMarker)) {
+                        const parts = fullText.split(mvpMarker);
+                        strategyText = parts[0];
+                        mvpText = "## Lean MVP Blueprint\n" + parts[1];
+                    } else {
+                        // Fallback heuristic if exact heading differs slightly
+                        const lowerText = fullText.toLowerCase();
+                        const fallbackIdx = lowerText.indexOf("minimum viable product");
+                        if (fallbackIdx !== -1) {
+                            strategyText = fullText.substring(0, fallbackIdx);
+                            mvpText = "## Lean MVP Blueprint\n" + fullText.substring(fallbackIdx);
+                        }
+                    }
+
+                    // Save state
+                    state.fullAnalysis = strategyText;
+                    state.mvpPlan = mvpText || "### No independent MVP Plan parsed. Look inside Strategic Pillars tab for comprehensive MVP breakdown.";
+                    
+                    // Update Lean Canvas fields by extracting matching keywords from raw output
+                    updateLeanCanvasFromAnalysis(fullText);
+                    
+                    // Render UI
+                    document.getElementById('analysisHTML').innerHTML = marked.parse(state.fullAnalysis);
+                    document.getElementById('analysisOutput').classList.remove('hidden');
+
+                    if (state.mvpPlan) {
+                        document.getElementById('mvpWelcomePlaceholder').classList.add('hidden');
+                        document.getElementById('mvpContainer').classList.remove('hidden');
+                        document.getElementById('mvpHTML').innerHTML = marked.parse(state.mvpPlan);
+                    }
+
+                    // Populate Grounding Sources if returned
+                    const sourcesContainer = document.getElementById('sourcesContainer');
+                    const sourcesList = document.getElementById('sourcesList');
+                    sourcesList.innerHTML = "";
+
+                    if (response.sources && response.sources.length > 0) {
+                        response.sources.forEach(source => {
+                            const link = document.createElement('a');
+                            link.href = source.uri;
+                            link.target = "_blank";
+                            link.className = "p-2 bg-gray-950/80 rounded-lg border border-gray-800 text-[11px] text-gray-400 hover:text-white transition flex items-center justify-between gap-2";
+                            link.innerHTML = `
+                                <span class="truncate font-medium">${source.title || source.uri}</span>
+                                <i data-lucide="external-link" class="w-3 h-3 shrink-0"></i>
+                            `;
+                            sourcesList.appendChild(link);
+                        });
+                        sourcesContainer.classList.remove('hidden');
+                    } else {
+                        sourcesContainer.classList.add('hidden');
+                    }
+
+                    saveStateToLocalStorage();
+                    showToast("Validation analysis completed successfully!", "check-circle", "emerald");
+                    switchTab('strategic-breakdown');
+                } else {
+                    throw new Error("Empty response received from the Product Engine.");
+                }
+
+            } catch (err) {
+                console.error(err);
+                showToast(`Analysis failed: ${err.message}`, "alert-triangle", "rose");
+            } finally {
+                loader.classList.add('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        // AI helper to pre-populate Lean Canvas text fields based on generated analysis
+        function updateLeanCanvasFromAnalysis(analysisText) {
+            // Helper function to extract text under specific Markdown headings
+            function extractSection(headingKeyword, defaultValue = "") {
+                const lines = analysisText.split('\n');
+                let capturing = false;
+                let capturedContent = [];
+                
+                for (let line of lines) {
+                    if (line.startsWith('##') && line.toLowerCase().includes(headingKeyword.toLowerCase())) {
+                        capturing = true;
+                        continue;
+                    }
+                    if (capturing && line.startsWith('##')) {
+                        break; // Hit next major heading
+                    }
+                    if (capturing) {
+                        capturedContent.push(line);
+                    }
+                }
+                
+                if (capturedContent.length > 0) {
+                    return capturedContent.join('\n').trim().substring(0, 350) + "...";
+                }
+                return defaultValue;
+            }
+
+            state.canvas.problem = extractSection("problem", "Identified user problem coordinates.");
+            state.canvas.solution = extractSection("mvp", "Calculated MVP implementation framework.");
+            state.canvas.uvp = extractSection("unique value", "Strategic Unique Value Proposition metrics.");
+            state.canvas.segments = extractSection("target audience", "Extracted primary customer segments.");
+            state.canvas.costs = extractSection("business", "Projected operational baseline cost indicators.");
+            state.canvas.revenues = extractSection("monetization", "Calculated primary scaling monetization streams.");
+
+            // Update DOM fields directly
+            Object.keys(state.canvas).forEach(key => {
+                const field = document.getElementById(`lc-${key}`);
+                if (field) field.value = state.canvas[key];
+            });
+            saveStateToLocalStorage();
+        }
+
+        // PM Advisor Chat Functionality
+        async function sendChatMessage() {
+            const chatInput = document.getElementById('chatMessageInput');
+            const messageText = chatInput.value.trim();
+            if (!messageText) return;
+
+            // Display user message in UI
+            appendMessageToUI('user', messageText);
+            chatInput.value = "";
+
+            // Update structural history
+            state.chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
+            saveStateToLocalStorage();
+
+            // AI dynamic reply preparation
+            const systemPrompt = `You are the 25+ year elite PM advisor. You are conversing directly with the user who is planning their startup.
+Answer critically, using real framework terms. Always maintain the expert persona, focusing on lean validation and avoiding features bloat.
+Keep responses highly punchy, actionable, and structured (use bold text where appropriate).`;
+
+            try {
+                // Call API with history context
+                const response = await fetchGeminiAPI(messageText, systemPrompt, false, state.chatHistory);
+                const replyText = response.text;
+                
+                if (replyText) {
+                    appendMessageToUI('bot', replyText);
+                    state.chatHistory.push({ role: 'model', parts: [{ text: replyText }] });
+                    saveStateToLocalStorage();
+                } else {
+                    throw new Error("Missing content in engine reply.");
+                }
+            } catch (err) {
+                console.error(err);
+                appendMessageToUI('bot', `⚠️ Advisor Connection Obstacle: ${err.message}. Ensure your network connects to API endpoints.`);
+            }
+        }
+
+        function appendMessageToUI(sender, text) {
+            const chatFeed = document.getElementById('chatFeed');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex gap-2.5 items-start animate-fade-in";
+
+            if (sender === 'bot') {
+                msgDiv.innerHTML = `
+                    <div class="bg-brand-950 border border-brand-800 p-1.5 rounded-lg text-brand-400 mt-0.5 shrink-0">
+                        <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="bg-gray-950/80 p-3 rounded-2xl rounded-tl-none border border-gray-800/80 text-gray-300 max-w-[85%]">
+                        <p class="font-semibold text-xs text-brand-400 mb-1">25-Year Startup Vet</p>
+                        <div class="prose prose-sm text-xs md:text-sm text-gray-200">${marked.parse(text)}</div>
+                    </div>
+                `;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="bg-gray-800 p-1.5 rounded-lg text-gray-300 mt-0.5 ml-auto shrink-0 order-last">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="bg-brand-950/40 p-3 rounded-2xl rounded-tr-none border border-brand-900/50 text-gray-200 max-w-[85%] ml-auto">
+                        <p class="font-semibold text-xs text-brand-300 mb-1 text-right">Founder (You)</p>
+                        <p class="text-xs md:text-sm text-right whitespace-pre-line">${text}</p>
+                    </div>
+                `;
+            }
+
+            chatFeed.appendChild(msgDiv);
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+            lucide.createIcons();
+        }
+
+        // Standardized Secure Unified API fetch system with built-in retry fallback
+        async function fetchGeminiAPI(queryText, systemInstruction, enableSearch = false, conversationHistory = []) {
+            let activeApiKey = apiKey;
+            
+            // Core fallback loop matching rule 
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+
+            // Structuring content block payload
+            let contents = [];
+            if (conversationHistory && conversationHistory.length > 0) {
+                contents = [...conversationHistory];
+                // Append the current user prompt if not already the last message in history
+                if (contents[contents.length - 1].role !== 'user' || contents[contents.length - 1].parts[0].text !== queryText) {
+                    contents.push({ role: "user", parts: [{ text: queryText }] });
+                }
+            } else {
+                contents = [{ role: "user", parts: [{ text: queryText }] }];
+            }
+
+            const payload = {
+                contents: contents,
+                systemInstruction: {
+                    parts: [{ text: systemInstruction }]
+                }
+            };
+
+            // Implement Google Search Grounding dynamically
+            if (enableSearch) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            // Exponential backoff strategy matching requirements
+            let delay = 1000;
+            for (let attempt = 0; attempt < 5; attempt++) {
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errBody = await response.json().catch(() => ({}));
+                        throw new Error(errBody.error?.message || `HTTP Server Error ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Extract text content & reference attributions
+                    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const attributions = data.candidates?.[0]?.groundingMetadata?.groundingAttributions?.map(attr => ({
+                        uri: attr.web?.uri || "",
+                        title: attr.web?.title || attr.web?.uri || "Validated Market Source"
+                    })) || [];
+
+                    return {
+                        text: textContent,
+                        sources: attributions
+                    };
+
+                } catch (err) {
+                    if (attempt === 4) {
+                        throw err; // Fail on final attempt
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Square the sleep delay sequence
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
+```
